@@ -156,6 +156,7 @@ public class Government {
 		} 
 		return false;
 	}
+	
 	private Document readXML(String contactInfo) {
 		File myObj= new File(contactInfo);
 		String filePath=myObj.getAbsolutePath();			//find path of configuration file
@@ -187,7 +188,8 @@ public class Government {
 			return false;
 		//if(!testHash.matches("[A-Za-z0-9]+"))
 			//return false;
-
+	
+		statement.execute("insert ignore into agencyTestResults values('"+testHash+"','"+date+"', "+result+");");
 		return true;
 	}
 	protected int findGatherings( int date, int minSize, int minTime, float density ) {
