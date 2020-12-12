@@ -7,15 +7,26 @@ package project;
  */
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;  
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.w3c.dom.Node;  
+import org.w3c.dom.Element;  
 
 
 public class Government {
@@ -73,10 +84,60 @@ public class Government {
 		System.out.print("\nInitiator" +initiator);
 		System.out.print("\nContactInfo" +contactInfo);
 		System.out.print("\n");
+		Document doc = readXML(contactInfo);
+		
+		System.out.println("Root element: " + doc.getDocumentElement().getNodeName());  
+		NodeList nodeList = doc.getElementsByTagName("initiator");  
+				
+		statement.execute("insert ignore into mobileDeviceHashDetails values('"+initiator+"');");
+		
+		// nodeList is not iterable, so we are using for loop  
+		for (int itr = 0; itr < nodeList.getLength(); itr++)   
+		{  
+			Node node = nodeList.item(itr);  
+			System.out.println("\nNode Name :" + node.getNodeName());  
+			if (node.getNodeType() == Node.ELEMENT_NODE)   
+			{  
+				Element eElement = (Element) node;  		
+				String individual = eElement.getElementsByTagName("individual").item(0).getTextContent(); 
+				int date =  Integer.parseInt(eElement.getElementsByTagName("date").item(0).getTextContent());
+				int duration = Integer.parseInt(eElement.getElementsByTagName("duration").item(0).getTextContent().toString());  
+				
+				System.out.print(individual);
+				System.out.print(date);
+				System.out.print(duration);
+
+			}  
+		}  
+
 			return false;
 	}
 	
-	
+	private Document readXML(String contactInfo) {
+		File myObj= new File(contactInfo);
+		String filePath=myObj.getAbsolutePath();			//find path of configuration file
+		File file= new File(filePath); 				//create a contact Info file on this particular path
+		  
+		//an instance of factory that gives a document builder  
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();  
+		//an instance of builder to parse the specified xml file  
+		DocumentBuilder db = null;
+		try {
+			db = dbf.newDocumentBuilder();
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}  
+		Document doc = null;
+		try {
+			doc = db.parse(file);
+		} catch (SAXException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		doc.getDocumentElement().normalize(); 
+		return doc;
+	}
 	protected boolean recordTestResult( String testHash, int date, boolean result ) throws SQLException{
 		
 		if(testHash.equals(null) || testHash.equals(""))			//test hash is null or empty
