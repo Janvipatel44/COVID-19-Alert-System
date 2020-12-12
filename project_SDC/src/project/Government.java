@@ -237,6 +237,29 @@ public class Government {
 					adj_list.get(recordContactHash).add(mobileDeviceHash);
 				}
 			}
+			 Set<String> hashSet_KeyValue =adj_list.keySet() ; 
+				System.out.print("\nHashset key value: " +hashSet_KeyValue);
+
+				int total_pair = (hashSet_KeyValue.size() * hashSet_KeyValue.size()-1)/2;
+			    String[][] myNumbers = new String[total_pair][2];
+			    int flag =0;
+			    int i=0,j=0;
+				for (String pair1 : hashSet_KeyValue) {
+					for (String pair2 : hashSet_KeyValue) {
+						if(pair1.equals(pair2)) {
+							flag = 1;
+						}
+						if(!pair1.equals(pair2) && flag == 1)
+						{
+							myNumbers[i][j] = pair1;
+							j++;
+							myNumbers[i][j] = pair2;
+							j--;
+							i++;
+						}
+					}
+					flag = 0;
+				}
 			System.out.print("\n" +adj_list);
 		}
 		catch (SQLException e) {
