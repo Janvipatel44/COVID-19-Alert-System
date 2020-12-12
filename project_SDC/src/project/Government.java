@@ -120,7 +120,16 @@ public class Government {
 				}
 				resultSet.close();
 			}  
-		}  
+		}
+		nodeList = doc.getElementsByTagName("positivetest");  
+		if(nodeList.getLength()!=0) {
+			for (int itr = 0; itr < nodeList.getLength(); itr++)   
+			{  
+				String positiveHash = doc.getElementsByTagName("positivetest").item(itr).getTextContent();	
+				System.out.print("PositiveHash" +positiveHash);
+				statement.execute("insert ignore into devicePositiveResult values('"+initiator+"', '"+positiveHash+"');");
+			}
+		}
 
 			return false;
 	}
