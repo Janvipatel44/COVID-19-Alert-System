@@ -265,6 +265,7 @@ public class Government {
 				System.out.println("\n");
 				for(i=0;i<10;i++)
 				{
+					float connection = 0;
 					
 					System.out.println("\nPair: " +myNumbers[i][0] +myNumbers[i][1]);
 					hash_Set.add(myNumbers[i][0]);
@@ -278,6 +279,27 @@ public class Government {
 						}
 					}
 					System.out.println("Hash_Set:" +hash_Set);
+					if(hash_Set.size()>=minSize) {
+						for(String pair: hash_Set) {
+							for(String pair_temp: hash_Set) {
+								if(pair.equals(pair_temp)) {
+									flag = 1;
+								}
+								if(!pair.equals(pair_temp) && flag == 1)
+								{
+									if(adj_list.get(pair).contains(pair_temp))
+									{
+										connection++;
+									}
+								}
+							}
+							flag = 0;
+						}
+						
+						System.out.println("Connection:" +connection);
+						
+					}
+					hash_Set.clear();
 				}
 			System.out.print("\n" +adj_list);
 		}
