@@ -8,16 +8,23 @@ package project;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
+
 public class Government {
 	
-	public Government( String configurationFile ) throws Exception
+	private Statement statement = null; //declaration of statement  
+	private Connection connect = null;	//used for SQL connection 
+
+	protected Government( String configurationFile ) throws Exception
 	{
-		Connection connect = null;	//used for SQL connection 
-		Statement statement = null; //declaration of statement  
 
 		if(configurationFile.equals(null) || configurationFile.equals("")) {	//if configuration file is null or empty
         	throw new Exception();
@@ -57,22 +64,30 @@ public class Government {
         if(database==null || user==null || password == null) {	//if any value is null 
         	throw new Exception();
         }
-		Class.forName("com.mysql.cj.jdbc.Driver");	//used for jdbc driver
-		connect = DriverManager.getConnection(database, user, password);	//connection to database
+        
+        connect = ConnectionManager.getConnection(database, user, password); 
 		statement = connect.createStatement();		
 		statement.execute("use janvi;");		//To select janvi database
 	}
-	public boolean mobileContact( String initiator, String contactInfo ) {
+	protected boolean mobileContact( String initiator, String contactInfo ) throws ParserConfigurationException, SAXException, IOException, SQLException {		
 		System.out.print("\nInitiator" +initiator);
 		System.out.print("\nContactInfo" +contactInfo);
 		System.out.print("\n");
-		return false;
+			return false;
 	}
-	protected boolean recordTestResult( String testHash, int date, boolean result ){
+	
+	
+	protected boolean recordTestResult( String testHash, int date, boolean result ) throws SQLException{
 		
-		return false;
+		if(testHash.equals(null) || testHash.equals(""))			//test hash is null or empty
+			return false;
+		//if(!testHash.matches("[A-Za-z0-9]+"))
+			//return false;
+
+		return true;
 	}
 	protected int findGatherings( int date, int minSize, int minTime, float density ) {
 		return 0;
 	}
+	
 }
