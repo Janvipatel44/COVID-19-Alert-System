@@ -209,6 +209,41 @@ public class Government {
 		return true;
 	}
 	protected int findGatherings( int date, int minSize, int minTime, float density ) {
+		ResultSet resultSet= null;
+		Map<String, List<String>> adj_list = new HashMap<String, List<String>>();	// Adjacency list map to store key value pair
+		int count = 0;
+		try {
+			resultSet = statement.executeQuery("select * from contactDetails where recordTime >= '"+minTime+"' and recordDate = '"+date+"'; ");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			while(resultSet.next())
+			{
+				String mobileDeviceHash = resultSet.getString("mobileDeviceHash");
+				String recordContactHash = resultSet.getString("recordContactHash");
+			
+				if(adj_list.get(mobileDeviceHash)==null)		{
+					adj_list.put(mobileDeviceHash, new ArrayList<String>());
+				}
+				if(adj_list.get(mobileDeviceHash).contains(recordContactHash)==false) {
+					adj_list.get(mobileDeviceHash).add(recordContactHash);
+				}
+				if(adj_list.get(recordContactHash)==null)		{
+					adj_list.put(recordContactHash, new ArrayList<String>());
+				}
+				if(adj_list.get(recordContactHash).contains(mobileDeviceHash)==false) {
+					adj_list.get(recordContactHash).add(mobileDeviceHash);
+				}
+			}
+			System.out.print("\n" +adj_list);
+		}
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.print("\n");
 		return 0;
 	}
 	
