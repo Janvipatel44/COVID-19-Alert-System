@@ -28,7 +28,6 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.Node;  
 import org.w3c.dom.Element;  
 
-
 public class Government {
 	
 	private Statement statement = null; //declaration of statement  
@@ -81,14 +80,11 @@ public class Government {
 		statement.execute("use janvi;");		//To select janvi database
 	}
 	protected boolean mobileContact( String initiator, String contactInfo ) throws ParserConfigurationException, SAXException, IOException, SQLException {		
-		System.out.print("\nInitiator" +initiator);
-		System.out.print("\nContactInfo" +contactInfo);
-		System.out.print("\n");
+		ResultSet resultSet= null;
 		Document doc = readXML(contactInfo);
-		
 		System.out.println("Root element: " + doc.getDocumentElement().getNodeName());  
 		NodeList nodeList = doc.getElementsByTagName("initiator");  
-		ResultSet resultSet= null;		
+				
 		statement.execute("insert ignore into mobileDeviceHashDetails values('"+initiator+"');");
 		
 		// nodeList is not iterable, so we are using for loop  
@@ -103,9 +99,6 @@ public class Government {
 				int date =  Integer.parseInt(eElement.getElementsByTagName("date").item(0).getTextContent());
 				int duration = Integer.parseInt(eElement.getElementsByTagName("duration").item(0).getTextContent().toString());  
 				
-				System.out.print(individual);
-				System.out.print(date);
-				System.out.print(duration);
 				resultSet = statement.executeQuery("select recordTime from contactDetails "
 						+ "where mobileDeviceHash = '"+initiator+"' and recordContactHash = '"+individual+"' and recordDate = '"+date+"';");
 
@@ -120,7 +113,7 @@ public class Government {
 				}
 				resultSet.close();
 			}  
-		}
+		}  
 		nodeList = doc.getElementsByTagName("positivetest");  
 		if(nodeList.getLength()!=0) {
 			for (int itr = 0; itr < nodeList.getLength(); itr++)   
@@ -134,6 +127,31 @@ public class Government {
 			return true;
 		else
 			return false;
+	}
+	private Document readXML(String contactInfo) {
+		File myObj= new File(contactInfo);
+		String filePath=myObj.getAbsolutePath();			//find path of configuration file
+		File file= new File(filePath); 				//create a contact Info file on this particular path
+		  
+		//an instance of factory that gives a document builder  
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();  
+		//an instance of builder to parse the specified xml file  
+		DocumentBuilder db = null;
+		try {
+			db = dbf.newDocumentBuilder();
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}  
+		Document doc = null;
+		try {
+			doc = db.parse(file);
+		} catch (SAXException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		doc.getDocumentElement().normalize(); 
+		return doc;
 	}
 	private boolean notify_mobiledevice(Statement statement,String initiator) throws SQLException{
 		ResultSet resultSet= null;
@@ -172,44 +190,123 @@ public class Government {
 		} 
 		return false;
 	}
-	
-	private Document readXML(String contactInfo) {
-		File myObj= new File(contactInfo);
-		String filePath=myObj.getAbsolutePath();			//find path of configuration file
-		File file= new File(filePath); 				//create a contact Info file on this particular path
-		  
-		//an instance of factory that gives a document builder  
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();  
-		//an instance of builder to parse the specified xml file  
-		DocumentBuilder db = null;
-		try {
-			db = dbf.newDocumentBuilder();
-		} catch (ParserConfigurationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}  
-		Document doc = null;
-		try {
-			doc = db.parse(file);
-		} catch (SAXException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-		doc.getDocumentElement().normalize(); 
-		return doc;
-	}
 	protected boolean recordTestResult( String testHash, int date, boolean result ) throws SQLException{
 		
 		if(testHash.equals(null) || testHash.equals(""))			//test hash is null or empty
 			return false;
 		//if(!testHash.matches("[A-Za-z0-9]+"))
 			//return false;
-	
+
 		statement.execute("insert ignore into agencyTestResults values('"+testHash+"','"+date+"', "+result+");");
 		return true;
 	}
 	protected int findGatherings( int date, int minSize, int minTime, float density ) {
-		return 0;
+		ResultSet resultSet= null;
+		Map<String, List<String>> adj_list = new HashMap<String, List<String>>();	// Adjacency list map to store key value pair
+		int count = 0;
+		try {
+			resultSet = statement.executeQuery("select * from contactDetails where recordTime >= '"+minTime+"' and recordDate = '"+date+"'; ");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			while(resultSet.next())
+			{
+				String mobileDeviceHash = resultSet.getString("mobileDeviceHash");
+				String recordContactHash = resultSet.getString("recordContactHash");
+			
+				if(adj_list.get(mobileDeviceHash)==null)		{
+					adj_list.put(mobileDeviceHash, new ArrayList<String>());
+				}
+				if(adj_list.get(mobileDeviceHash).contains(recordContactHash)==false) {
+					adj_list.get(mobileDeviceHash).add(recordContactHash);
+				}
+				if(adj_list.get(recordContactHash)==null)		{
+					adj_list.put(recordContactHash, new ArrayList<String>());
+				}
+				if(adj_list.get(recordContactHash).contains(mobileDeviceHash)==false) {
+					adj_list.get(recordContactHash).add(mobileDeviceHash);
+				}
+			}
+			System.out.print("\n" +adj_list);
+
+	        Set<String> hashSet_KeyValue =adj_list.keySet() ; 
+			System.out.print("\nHashset key value: " +hashSet_KeyValue);
+
+			int total_pair = (hashSet_KeyValue.size() * hashSet_KeyValue.size()-1)/2;
+		    String[][] myNumbers = new String[total_pair][2];
+		    int flag =0;
+		    int i=0,j=0;
+			for (String pair1 : hashSet_KeyValue) {
+				for (String pair2 : hashSet_KeyValue) {
+					if(pair1.equals(pair2)) {
+						flag = 1;
+					}
+					if(!pair1.equals(pair2) && flag == 1)
+					{
+						myNumbers[i][j] = pair1;
+						j++;
+						myNumbers[i][j] = pair2;
+						j--;
+						i++;
+					}
+				}
+				flag = 0;
+			}
+			Set<String> hash_Set = new HashSet<String>(); 
+			flag = 0;
+			System.out.println("\n");
+			for(i=0;i<10;i++)
+			{
+				float connection = 0;
+				float max_connection = 0;
+				float cal_density = 0;
+				System.out.println("\nPair: " +myNumbers[i][0] +myNumbers[i][1]);
+				hash_Set.add(myNumbers[i][0]);
+				hash_Set.add(myNumbers[i][1]);
+				for (String pair2 : hashSet_KeyValue) {
+					if(!pair2.equals(myNumbers[i][0]) && !pair2.equals(myNumbers[i][0])) {
+						if(adj_list.get(myNumbers[i][0]).contains(pair2) && adj_list.get(myNumbers[i][1]).contains(pair2))
+						{
+							hash_Set.add(pair2);
+						}
+					}
+				}
+				System.out.println("Hash_Set:" +hash_Set);
+				if(hash_Set.size()>=minSize) {
+					for(String pair: hash_Set) {
+						for(String pair_temp: hash_Set) {
+							if(pair.equals(pair_temp)) {
+								flag = 1;
+							}
+							if(!pair.equals(pair_temp) && flag == 1)
+							{
+								if(adj_list.get(pair).contains(pair_temp))
+								{
+									connection++;
+								}
+							}
+						}
+						flag = 0;
+					}
+					
+					System.out.println("Connection:" +connection);
+					max_connection = (hash_Set.size()*(hash_Set.size()-1))/2;
+					cal_density = connection/max_connection;
+					if(cal_density>density)
+					{
+						count++;
+					}
+					System.out.println("Density:" +cal_density);
+				}
+				hash_Set.clear();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.print("\n");
+		return count;
 	}
-	
 }
