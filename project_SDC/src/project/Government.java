@@ -152,7 +152,23 @@ public class Government {
 			String recordDate = resultSet.getString("recordDate");
 			String recordContactHash = resultSet.getString("recordContactHash");
 			System.out.print(recordContactHash);
-			
+			resultSubSet_1 = statement_1.executeQuery("select devicePositiveResult.positiveHash"
+					+ " from devicePositiveResult where devicePositiveResult.mobileDeviceHash = '"+recordContactHash+"';");
+			while(resultSubSet_1.next()) {
+				String positiveHash = resultSubSet_1.getString("positiveHash");
+				System.out.print(positiveHash);
+				resultSubSet_2 = statement_2.executeQuery("select devicePositiveResult.positiveHash from devicePositiveResult,agencyTestResults \r\n" + 
+						"where agencyTestResults.testResultHash = '"+positiveHash+"' and agencyTestResults.resultDate-'"+recordDate+"' <14 and \r\n" + 
+						"agencyTestResults.resultDate-"+recordDate+">-14;\r\n" + 
+						"");
+				if(resultSubSet_2.next() == true) {
+					System.out.print(resultSubSet_1.getString("positiveHash"));
+					resultSet.close();
+					resultSubSet_1.close();
+					resultSubSet_2.close();
+					return true;
+				}
+			}
 		} 
 		return false;
 	}
