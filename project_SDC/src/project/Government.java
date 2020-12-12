@@ -130,10 +130,32 @@ public class Government {
 				statement.execute("insert ignore into devicePositiveResult values('"+initiator+"', '"+positiveHash+"');");
 			}
 		}
-
+		if(notify_mobiledevice(statement,initiator)==true)
+			return true;
+		else
 			return false;
 	}
-	
+	private boolean notify_mobiledevice(Statement statement,String initiator) throws SQLException{
+		ResultSet resultSet= null;
+		Statement statement_1 =null;
+		Statement statement_2 =null;
+		statement_1 = connect.createStatement();		
+		statement_2 = connect.createStatement();		
+
+		resultSet = statement.executeQuery("select recordContactHash,recordDate from contactDetails "
+				+ "where contactDetails.mobileDeviceHash='"+initiator+"' and \r\n" + 
+				"DATEDIFF(CAST(sysdate() As Date), '2020-01-01')-recordDate<14;");
+		while(resultSet.next())  //loop to store every row
+		{
+			ResultSet resultSubSet_1= null;
+			ResultSet resultSubSet_2= null;
+			String recordDate = resultSet.getString("recordDate");
+			String recordContactHash = resultSet.getString("recordContactHash");
+			System.out.print(recordContactHash);
+			
+		} 
+		return false;
+	}
 	private Document readXML(String contactInfo) {
 		File myObj= new File(contactInfo);
 		String filePath=myObj.getAbsolutePath();			//find path of configuration file
