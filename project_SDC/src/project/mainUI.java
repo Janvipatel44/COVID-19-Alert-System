@@ -108,7 +108,23 @@ public class mainUI{
 				}
 				else if(userCommand.equalsIgnoreCase(findGatherings))		//to find gathering for government
 				{
-					
+					userArgument = getEndingString( userInput );		//scanning detail of contacted details
+					String[] inputs;	
+					ArrayList<String> contactdeviceDetail = new ArrayList<>();
+					if (userArgument == null) {
+						contactdeviceDetail = null;
+					} else {
+						// build the array list for the parameter from each of the files given
+						inputs = userArgument.split(" ");
+
+						for (String Detail : inputs) {			//inserting details to array list
+							contactdeviceDetail.add( Detail );
+						}
+					}
+					System.out.print(gov.findGatherings(Integer.parseInt(contactdeviceDetail.get(0)),
+							Integer.parseInt(contactdeviceDetail.get(1)),
+							Integer.parseInt(contactdeviceDetail.get(2)),
+							Float.parseFloat(contactdeviceDetail.get(3))));
 				}
 
 			} while (!userCommand.equalsIgnoreCase("quit"));  	//to quit 
