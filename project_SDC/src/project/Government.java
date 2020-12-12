@@ -88,7 +88,7 @@ public class Government {
 		
 		System.out.println("Root element: " + doc.getDocumentElement().getNodeName());  
 		NodeList nodeList = doc.getElementsByTagName("initiator");  
-				
+		ResultSet resultSet= null;		
 		statement.execute("insert ignore into mobileDeviceHashDetails values('"+initiator+"');");
 		
 		// nodeList is not iterable, so we are using for loop  
@@ -106,9 +106,30 @@ public class Government {
 				System.out.print(individual);
 				System.out.print(date);
 				System.out.print(duration);
+				resultSet = statement.executeQuery("select recordTime from contactDetails "
+						+ "where mobileDeviceHash = '"+initiator+"' and recordContactHash = '"+individual+"' and recordDate = '"+date+"';");
 
+				if(resultSet.next() == false) {
+					statement.execute("insert ignore into contactDetails values('"+initiator+"', '"+individual+"', '"+date+"', '"+duration+"');");
+				}
+				else {
+					duration = duration + resultSet.getInt("recordTime");
+					System.out.print(duration);
+					statement.execute("update contactDetails set recordTime = '"+duration+"' where mobileDeviceHash = '"+initiator+"' "
+													+ "and recordContactHash = '"+individual+"' and recordDate = '"+date+"';");
+				}
+				resultSet.close();
 			}  
-		}  
+		}
+		nodeList = doc.getElementsByTagName("positivetest");  
+		if(nodeList.getLength()!=0) {
+			for (int itr = 0; itr < nodeList.getLength(); itr++)   
+			{  
+				String positiveHash = doc.getElementsByTagName("positivetest").item(itr).getTextContent();	
+				System.out.print("PositiveHash" +positiveHash);
+				statement.execute("insert ignore into devicePositiveResult values('"+initiator+"', '"+positiveHash+"');");
+			}
+		}
 
 			return false;
 	}
