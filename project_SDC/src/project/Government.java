@@ -260,6 +260,25 @@ public class Government {
 					}
 					flag = 0;
 				}
+				Set<String> hash_Set = new HashSet<String>(); 
+				flag = 0;
+				System.out.println("\n");
+				for(i=0;i<10;i++)
+				{
+					
+					System.out.println("\nPair: " +myNumbers[i][0] +myNumbers[i][1]);
+					hash_Set.add(myNumbers[i][0]);
+					hash_Set.add(myNumbers[i][1]);
+					for (String pair2 : hashSet_KeyValue) {
+						if(!pair2.equals(myNumbers[i][0]) && !pair2.equals(myNumbers[i][0])) {
+							if(adj_list.get(myNumbers[i][0]).contains(pair2) && adj_list.get(myNumbers[i][1]).contains(pair2))
+							{
+								hash_Set.add(pair2);
+							}
+						}
+					}
+					System.out.println("Hash_Set:" +hash_Set);
+				}
 			System.out.print("\n" +adj_list);
 		}
 		catch (SQLException e) {
