@@ -85,16 +85,30 @@ public class mainUI{
 				}
 				else if(userCommand.equalsIgnoreCase(synchronizeData))		//to provide data to government class to enter details
 				{
+					
 					System.out.print(device.synchronizeData());		//calling synchronizeData function in device class
 				}
 				//currently developing this two methods
 				else if(userCommand.equalsIgnoreCase(recordTestResult))		//to enter details of corona test 
 				{
-					System.out.print(gov.recordTestResult(configurationFile, 0, false));
+					userArgument = getEndingString( userInput );		//scanning detail of contacted details
+					String[] inputs;	
+					ArrayList<String> contactdeviceDetail = new ArrayList<>();
+					if (userArgument == null) {
+						contactdeviceDetail = null;
+					} else {
+						// build the array list for the parameter from each of the files given
+						inputs = userArgument.split(" ");
+
+						for (String Detail : inputs) {			//inserting details to array list
+							contactdeviceDetail.add( Detail );
+						}
+					}
+					System.out.print(gov.recordTestResult(contactdeviceDetail.get(0), Integer.parseInt(contactdeviceDetail.get(1)), Boolean.parseBoolean(contactdeviceDetail.get(2))));
 				}
 				else if(userCommand.equalsIgnoreCase(findGatherings))		//to find gathering for government
 				{
-					System.out.print(gov.findGatherings(0, 0, 0, 0));
+					
 				}
 
 			} while (!userCommand.equalsIgnoreCase("quit"));  	//to quit 

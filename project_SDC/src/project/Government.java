@@ -130,8 +130,47 @@ public class Government {
 				statement.execute("insert ignore into devicePositiveResult values('"+initiator+"', '"+positiveHash+"');");
 			}
 		}
-
+		if(notify_mobiledevice(statement,initiator)==true)
+			return true;
+		else
 			return false;
+	}
+	private boolean notify_mobiledevice(Statement statement,String initiator) throws SQLException{
+		ResultSet resultSet= null;
+		Statement statement_1 =null;
+		Statement statement_2 =null;
+		statement_1 = connect.createStatement();		
+		statement_2 = connect.createStatement();		
+
+		resultSet = statement.executeQuery("select recordContactHash,recordDate from contactDetails "
+				+ "where contactDetails.mobileDeviceHash='"+initiator+"' and \r\n" + 
+				"DATEDIFF(CAST(sysdate() As Date), '2020-01-01')-recordDate<14;");
+		while(resultSet.next())  //loop to store every row
+		{
+			ResultSet resultSubSet_1= null;
+			ResultSet resultSubSet_2= null;
+			String recordDate = resultSet.getString("recordDate");
+			String recordContactHash = resultSet.getString("recordContactHash");
+			System.out.print(recordContactHash);
+			resultSubSet_1 = statement_1.executeQuery("select devicePositiveResult.positiveHash"
+					+ " from devicePositiveResult where devicePositiveResult.mobileDeviceHash = '"+recordContactHash+"';");
+			while(resultSubSet_1.next()) {
+				String positiveHash = resultSubSet_1.getString("positiveHash");
+				System.out.print(positiveHash);
+				resultSubSet_2 = statement_2.executeQuery("select devicePositiveResult.positiveHash from devicePositiveResult,agencyTestResults \r\n" + 
+						"where agencyTestResults.testResultHash = '"+positiveHash+"' and agencyTestResults.resultDate-'"+recordDate+"' <14 and \r\n" + 
+						"agencyTestResults.resultDate-"+recordDate+">-14;\r\n" + 
+						"");
+				if(resultSubSet_2.next() == true) {
+					System.out.print(resultSubSet_1.getString("positiveHash"));
+					resultSet.close();
+					resultSubSet_1.close();
+					resultSubSet_2.close();
+					return true;
+				}
+			}
+		} 
+		return false;
 	}
 	
 	private Document readXML(String contactInfo) {
@@ -165,7 +204,8 @@ public class Government {
 			return false;
 		//if(!testHash.matches("[A-Za-z0-9]+"))
 			//return false;
-
+	
+		statement.execute("insert ignore into agencyTestResults values('"+testHash+"','"+date+"', "+result+");");
 		return true;
 	}
 	protected int findGatherings( int date, int minSize, int minTime, float density ) {
