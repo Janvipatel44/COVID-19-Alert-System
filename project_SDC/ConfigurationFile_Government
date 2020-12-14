@@ -1,3 +1,3 @@
-database=jdbc:mysql://db.cs.dal.ca:3306?serverTimezone=UTC
+database=jdbc:mysql://db.cs.dal.ca:3306/ProjectSDC?serverTimezone=UTC
 user=janvi
 password=B00863421

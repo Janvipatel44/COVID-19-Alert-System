@@ -3,7 +3,7 @@ package project;
 /* Project
  * Name : Janvi Patel
  * Dalhousie ID : B00863421 
- * Date : 30/12/2020
+ * Date : 14/12/2020
  */
 
 public class contactDeviceDetails {
@@ -16,4 +16,4 @@ public class contactDeviceDetails {
 			this.date = date;	//date
 			this.duration = duration;	//duration
 		}
-}
+} 

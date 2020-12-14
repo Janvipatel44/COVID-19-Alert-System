@@ -3,14 +3,14 @@ package project;
 /* Project
  * Name : Janvi Patel
  * Dalhousie ID : B00863421 
- * Date : 30/12/2020
+ * Date : 14/12/2020
  */
 
 import java.util.*;
 
 public class mainUI{
 		//mainUI is designed to handle operations
-	    public static void main (String[] args) throws Exception {
+	    public static void main (String[] args)  {
 	    	
 	    	//details of commands
 			String addDevice = "addDevice";
@@ -46,19 +46,19 @@ public class mainUI{
 					
 				/* Do what the user asked for.  If condition for each command.  Since each command
 				   has a different number of parameters, we do separate handling of each command. */
-
+ 
 				if (userCommand.equalsIgnoreCase(addDevice)) {		//add details of new device
 					String filename;		
-
+ 
 					// Get the file name list
 					userArgument = getEndingString( userInput );	//scanning file name
 					filename = userArgument;
-					try {
-						device = new MobileDevice(filename,gov);	//creating instance of mobileDevice using filename and government object
-					}
-					catch(Exception e) {
-						System.out.println( "constructor failed" );
-					}
+				 	try {
+						device = new MobileDevice(filename,gov);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						System.out.print(e);
+					}	//creating instance of mobileDevice using filename and government object
 				}
 				else if(userCommand.equalsIgnoreCase(contactDevice))	//placing puzzle at provided location
 				{
@@ -81,15 +81,14 @@ public class mainUI{
 				else if(userCommand.equalsIgnoreCase(testresult))	//entering positive test result hash code
 				{
 					userArgument = getEndingString( userInput );	//scanning user input
-					device.positiveTest(userArgument);				//calling positive test function in device class
+					System.out.print(device.positiveTest(userArgument));				//calling positive test function in device class
 				}
 				else if(userCommand.equalsIgnoreCase(synchronizeData))		//to provide data to government class to enter details
 				{
-					
 					System.out.print(device.synchronizeData());		//calling synchronizeData function in device class
 				}
 				//currently developing this two methods
-				else if(userCommand.equalsIgnoreCase(recordTestResult))		//to enter details of corona test 
+				else if(userCommand.equalsIgnoreCase(recordTestResult))		//to enter details of COVID-19 test 
 				{
 					userArgument = getEndingString( userInput );		//scanning detail of contacted details
 					String[] inputs;	
